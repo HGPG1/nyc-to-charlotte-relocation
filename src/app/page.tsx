@@ -3,7 +3,7 @@
 import { useState, useCallback, FormEvent } from "react";
 import Image from "next/image";
 
-/* âââ helpers âââ */
+/* ─── helpers ─── */
 const fmt = (n: number) =>
   n.toLocaleString("en-US", {
     style: "currency",
@@ -11,7 +11,7 @@ const fmt = (n: number) =>
     maximumFractionDigits: 0,
   });
 
-/* âââ SVG Icons for "Why" cards âââ */
+/* ─── SVG Icons for "Why" cards ─── */
 function DollarIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -79,7 +79,7 @@ function CheckIcon() {
   );
 }
 
-/* âââ Logo Component âââ */
+/* ─── Logo Component ─── */
 function Logo({ size = "normal" }: { size?: "normal" | "small" }) {
   const h = size === "small" ? "h-8" : "h-12";
   return (
@@ -143,12 +143,12 @@ function Logo({ size = "normal" }: { size?: "normal" | "small" }) {
   );
 }
 
-/* âââ Calculator Section âââ */
+/* ─── Calculator Section ─── */
 function Calculator() {
   const [rent, setRent] = useState(5137);
 
   const calc = useCallback(() => {
-    // Charlotte mortgage â 75% of NYC rent
+    // Charlotte mortgage ≈ 75% of NYC rent
     const charlotteMortgage = Math.round(rent * 0.75);
     const monthlySavings = rent - charlotteMortgage;
     const annualSavings = monthlySavings * 12;
@@ -276,7 +276,7 @@ function Calculator() {
   );
 }
 
-/* âââ Why Card âââ */
+/* ─── Why Card ─── */
 function WhyCard({
   icon,
   title,
@@ -307,7 +307,7 @@ function WhyCard({
   );
 }
 
-/* âââ Lead Form âââ */
+/* ─── Lead Form ─── */
 function LeadForm({
   showPhone = false,
   buttonText = "Get My Free Relocation Guide",
@@ -379,17 +379,17 @@ function LeadForm({
         {buttonText}
       </button>
       <p className="text-center text-sm" style={{ color: "#9ca3af" }}>
-        ð {privacyText}
+        🔒 {privacyText}
       </p>
     </form>
   );
 }
 
-/* âââ Main Page âââ */
+/* ─── Main Page ─── */
 export default function Home() {
   return (
     <main style={{ fontFamily: "Inter, sans-serif" }}>
-      {/* ââ Sticky Header ââ */}
+      {/* ── Sticky Header ── */}
       <header
         className="border-b sticky top-0 z-50 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80"
         style={{ borderColor: "#e5e7eb" }}
@@ -406,7 +406,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ââ Hero Section ââ */}
+      {/* ── Hero Section ── */}
       <section className="relative overflow-hidden text-white">
         {/* Background Image */}
         <div className="absolute inset-0">
@@ -494,7 +494,7 @@ export default function Home() {
                 Relocation Playbook
               </h2>
               <p className="text-sm" style={{ color: "#6b7280" }}>
-                Neighborhood guides, cost breakdowns & insider tips â
+                Neighborhood guides, cost breakdowns & insider tips —
                 delivered instantly.
               </p>
             </div>
@@ -503,10 +503,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ââ Calculator ââ */}
+      {/* ── Calculator ── */}
       <Calculator />
 
-      {/* ââ Why New Yorkers Choose Charlotte ââ */}
+      {/* ── Why New Yorkers Choose Charlotte ── */}
       <section className="py-20" style={{ background: "#ffffff" }}>
         <div className="max-w-6xl mx-auto px-6">
           <h2
@@ -533,7 +533,7 @@ export default function Home() {
             <WhyCard
               icon={<MapPinIcon />}
               title="Great Neighborhoods"
-              description="Walkable areas like Dilworth and South End offer the urban vibe you loveâwith actual space and greenery."
+              description="Walkable areas like Dilworth and South End offer the urban vibe you love—with actual space and greenery."
             />
             <WhyCard
               icon={<HomeIcon />}
@@ -554,7 +554,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ââ Full-Width Neighborhood Image ââ */}
+      {/* ── Full-Width Neighborhood Image ── */}
       <section className="py-0">
         <div className="relative w-full h-[400px] md:h-[500px]">
           <Image
@@ -566,7 +566,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ââ Bottom CTA / Lead Form ââ */}
+      {/* ── Bottom CTA / Lead Form ── */}
       <section
         id="lead-form"
         className="py-20"
@@ -594,7 +594,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ââ Footer ââ */}
+      {/* ── Footer ── */}
       <footer className="py-12" style={{ background: "#2a384c" }}>
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-8">
           <div>
@@ -626,7 +626,7 @@ export default function Home() {
           </div>
           <div className="text-right">
             <p className="text-white/60 text-sm">
-              Â© 2026 Home Grown Property Group. All rights reserved.
+              © 2026 Home Grown Property Group. All rights reserved.
             </p>
             <p className="text-white/40 text-sm mt-1">Real Broker, LLC</p>
           </div>
