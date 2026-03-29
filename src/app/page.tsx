@@ -1,239 +1,273 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, FormEvent } from "react";
+import Image from "next/image";
 
-/* âââ tiny helpers âââ */
+/* âââ helpers âââ */
 const fmt = (n: number) =>
-  n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-const pct = (n: number) => `${Math.round(n)}%`;
+  n.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  });
 
-/* âââ Rent-to-Mortgage Calculator âââ */
+/* âââ SVG Icons for "Why" cards âââ */
+function DollarIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="1" x2="12" y2="23" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </svg>
+  );
+}
+function TrendingIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+      <polyline points="17 6 23 6 23 12" />
+    </svg>
+  );
+}
+function MapPinIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+function HomeIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  );
+}
+function UsersIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+function CheckCircleIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+  );
+}
+function HomeFilledIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="1.5">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" stroke="#2a384c" />
+    </svg>
+  );
+}
+function CheckIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+  );
+}
+
+/* âââ Logo Component âââ */
+function Logo({ size = "normal" }: { size?: "normal" | "small" }) {
+  const h = size === "small" ? "h-8" : "h-12";
+  return (
+    <div className="flex items-center gap-3">
+      {/* Tree icon */}
+      <div className="flex items-center gap-2">
+        <svg
+          width={size === "small" ? "28" : "40"}
+          height={size === "small" ? "28" : "40"}
+          viewBox="0 0 100 100"
+          fill="none"
+        >
+          <circle cx="50" cy="35" r="28" fill="#a0b2c2" opacity="0.3" />
+          <path
+            d="M50 75 L50 55 M50 55 Q35 45 30 30 Q28 20 40 18 Q45 17 50 22 Q55 17 60 18 Q72 20 70 30 Q65 45 50 55 M50 60 Q40 52 38 45 M50 58 Q60 50 62 43 M42 75 L58 75"
+            stroke="#2a384c"
+            strokeWidth="2.5"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <text x="50" y="95" textAnchor="middle" fontSize="8" fill="#2a384c" fontWeight="600" fontFamily="Inter, sans-serif" letterSpacing="1">
+            PROPERTY GROUP
+          </text>
+        </svg>
+        <div className="flex flex-col leading-tight">
+          <span
+            className={`font-bold tracking-wide ${size === "small" ? "text-xs" : "text-base"}`}
+            style={{ color: "#2a384c", fontFamily: "Inter, sans-serif" }}
+          >
+            HOME GROWN
+          </span>
+          <span
+            className={`tracking-widest ${size === "small" ? "text-[6px]" : "text-[8px]"}`}
+            style={{ color: "#2a384c", fontFamily: "Inter, sans-serif" }}
+          >
+            PROPERTY GROUP
+          </span>
+        </div>
+      </div>
+      {/* Divider */}
+      <div
+        className={`border-l ${size === "small" ? "h-6" : "h-8"}`}
+        style={{ borderColor: "#a0b2c2" }}
+      />
+      {/* Real Broker */}
+      <div className="flex flex-col items-center leading-tight">
+        <span
+          className={`font-bold ${size === "small" ? "text-[10px]" : "text-sm"}`}
+          style={{ color: "#2a384c", fontFamily: "Inter, sans-serif" }}
+        >
+          real
+        </span>
+        <span
+          className={`${size === "small" ? "text-[5px]" : "text-[7px]"} tracking-wider`}
+          style={{ color: "#2a384c", fontFamily: "Inter, sans-serif" }}
+        >
+          REAL BROKER, LLC
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* âââ Calculator Section âââ */
 function Calculator() {
-  const [rent, setRent] = useState(3500);
-  const [down, setDown] = useState(20);
-  const [rate, setRate] = useState(6.75);
-  const [term, setTerm] = useState(30);
-  const [tax, setTax] = useState(1.03);
-  const [insurance, setInsurance] = useState(150);
+  const [rent, setRent] = useState(5137);
 
   const calc = useCallback(() => {
-    const monthlyRate = rate / 100 / 12;
-    const numPayments = term * 12;
-    const downPct = down / 100;
-
-    // What monthly P&I payment equals current rent minus tax/ins?
-    const piTarget = rent - (tax / 100) * (rent * 12) / 12 - insurance;
-    const piPayment = Math.max(piTarget, rent * 0.6);
-
-    // What home price can that payment support?
+    // Charlotte mortgage â 75% of NYC rent
+    const charlotteMortgage = Math.round(rent * 0.75);
+    const monthlySavings = rent - charlotteMortgage;
+    const annualSavings = monthlySavings * 12;
+    // Estimated home price based on mortgage (assume 6.75%, 30yr, taxes+insurance)
+    const monthlyRate = 0.0675 / 12;
+    const n = 360;
+    // Back-calculate: mortgage payment = P&I + tax + insurance
+    // Assume ~75% of payment is P&I
+    const piPayment = charlotteMortgage * 0.75;
     const loanAmount =
-      monthlyRate > 0
-        ? (piPayment * (Math.pow(1 + monthlyRate, numPayments) - 1)) /
-          (monthlyRate * Math.pow(1 + monthlyRate, numPayments))
-        : piPayment * numPayments;
+      piPayment * ((Math.pow(1 + monthlyRate, n) - 1) / (monthlyRate * Math.pow(1 + monthlyRate, n)));
+    const homePrice = Math.round(loanAmount / 0.8); // 20% down
+    return { charlotteMortgage, monthlySavings, annualSavings, homePrice };
+  }, [rent]);
 
-    const homePrice = loanAmount / (1 - downPct);
-    const downPayment = homePrice * downPct;
-    const monthlyPI =
-      monthlyRate > 0
-        ? (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
-          (Math.pow(1 + monthlyRate, numPayments) - 1)
-        : loanAmount / numPayments;
-    const monthlyTax = (homePrice * (tax / 100)) / 12;
-    const totalMonthly = monthlyPI + monthlyTax + insurance;
-    const savings = rent - totalMonthly;
-
-    return { homePrice, downPayment, loanAmount, monthlyPI, monthlyTax, totalMonthly, savings };
-  }, [rent, down, rate, term, tax, insurance]);
-
-  const r = calc();
+  const { charlotteMortgage, monthlySavings, annualSavings, homePrice } = calc();
 
   return (
-    <section id="calculator" className="py-20 px-4" style={{ background: "#F0F0F0" }}>
-      <div className="max-w-6xl mx-auto">
+    <section
+      className="relative py-20 overflow-hidden"
+      style={{
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="absolute inset-0 bg-white/85" />
+      <div className="relative max-w-3xl mx-auto px-4">
         <h2
-          className="text-4xl md:text-5xl font-bold text-center mb-4"
-          style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
+          className="text-4xl md:text-5xl font-bold text-center mb-3"
+          style={{ fontFamily: "Sansita, serif", color: "#2a384c" }}
         >
-          Rent-to-Mortgage Calculator
+          See What Your Rent Buys in Charlotte
         </h2>
-        <p className="text-center text-lg mb-12 max-w-2xl mx-auto" style={{ color: "#2A384C" }}>
-          See how your NYC rent could translate to homeownership in Charlotte.
-          Adjust the inputs below to explore your buying power.
+        <p className="text-center text-lg mb-10" style={{ color: "#6b7280" }}>
+          Enter your current NYC rent to see your potential savings
         </p>
 
-        <div className="grid md:grid-cols-2 gap-10">
-          {/* Inputs */}
-          <div className="rounded-2xl p-8 shadow-lg" style={{ background: "#FFFFFF" }}>
-            <h3
-              className="text-2xl font-bold mb-6"
-              style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
-            >
-              Your Current Situation
-            </h3>
+        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10">
+          <label
+            className="block font-semibold text-lg mb-3"
+            style={{ color: "#2a384c" }}
+          >
+            Your Current Monthly Rent
+          </label>
+          <div className="relative mb-8">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold" style={{ color: "#a0b2c2" }}>
+              $
+            </span>
+            <input
+              type="number"
+              value={rent}
+              onChange={(e) => setRent(Number(e.target.value) || 0)}
+              className="w-full border-2 rounded-xl pl-10 pr-4 py-4 text-xl font-semibold focus:outline-none focus:border-[#2a384c] transition-colors"
+              style={{ borderColor: "#d1d9df", color: "#2a384c" }}
+              placeholder="5137"
+            />
+          </div>
 
-            <label className="block mb-1 font-semibold text-sm" style={{ color: "#2A384C" }}>
-              Monthly NYC Rent
-            </label>
-            <div className="flex items-center gap-3 mb-4">
-              <input
-                type="range"
-                min={1500}
-                max={8000}
-                step={100}
-                value={rent}
-                onChange={(e) => setRent(+e.target.value)}
-                className="flex-1 accent-[#2A384C]"
-              />
-              <span
-                className="font-bold text-lg min-w-[90px] text-right"
-                style={{ color: "#2A384C" }}
-              >
-                {fmt(rent)}
-              </span>
+          {/* Results Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="border-2 rounded-xl p-5" style={{ borderColor: "#d1d9df" }}>
+              <p className="text-sm font-medium mb-1" style={{ color: "#6b7280" }}>
+                Charlotte Mortgage
+              </p>
+              <p className="text-3xl font-bold" style={{ color: "#2a384c" }}>
+                {fmt(charlotteMortgage)}
+              </p>
+              <p className="text-sm" style={{ color: "#9ca3af" }}>
+                per month
+              </p>
             </div>
-
-            <label className="block mb-1 font-semibold text-sm" style={{ color: "#2A384C" }}>
-              Down Payment
-            </label>
-            <div className="flex items-center gap-3 mb-4">
-              <input
-                type="range"
-                min={3}
-                max={30}
-                step={1}
-                value={down}
-                onChange={(e) => setDown(+e.target.value)}
-                className="flex-1 accent-[#2A384C]"
-              />
-              <span
-                className="font-bold text-lg min-w-[50px] text-right"
-                style={{ color: "#2A384C" }}
-              >
-                {pct(down)}
-              </span>
+            <div className="border-2 rounded-xl p-5" style={{ borderColor: "#d1d9df" }}>
+              <p className="text-sm font-medium mb-1" style={{ color: "#6b7280" }}>
+                Monthly Savings
+              </p>
+              <p className="text-3xl font-bold" style={{ color: "#a0b2c2" }}>
+                {fmt(monthlySavings)}
+              </p>
+              <p className="text-sm" style={{ color: "#9ca3af" }}>
+                every month
+              </p>
             </div>
-
-            <label className="block mb-1 font-semibold text-sm" style={{ color: "#2A384C" }}>
-              Interest Rate
-            </label>
-            <div className="flex items-center gap-3 mb-4">
-              <input
-                type="range"
-                min={4}
-                max={9}
-                step={0.125}
-                value={rate}
-                onChange={(e) => setRate(+e.target.value)}
-                className="flex-1 accent-[#2A384C]"
-              />
-              <span
-                className="font-bold text-lg min-w-[60px] text-right"
-                style={{ color: "#2A384C" }}
-              >
-                {rate.toFixed(2)}%
-              </span>
-            </div>
-
-            <label className="block mb-1 font-semibold text-sm" style={{ color: "#2A384C" }}>
-              Loan Term
-            </label>
-            <div className="flex gap-3 mb-4">
-              {[15, 20, 30].map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTerm(t)}
-                  className="px-5 py-2 rounded-lg font-semibold transition-all"
-                  style={{
-                    background: term === t ? "#2A384C" : "#D1D9DF",
-                    color: term === t ? "#FFFFFF" : "#2A384C",
-                  }}
-                >
-                  {t} yr
-                </button>
-              ))}
-            </div>
-
-            <label className="block mb-1 font-semibold text-sm" style={{ color: "#2A384C" }}>
-              Property Tax Rate (Charlotte avg â 1.03%)
-            </label>
-            <div className="flex items-center gap-3 mb-4">
-              <input
-                type="range"
-                min={0.5}
-                max={2}
-                step={0.01}
-                value={tax}
-                onChange={(e) => setTax(+e.target.value)}
-                className="flex-1 accent-[#2A384C]"
-              />
-              <span
-                className="font-bold text-lg min-w-[60px] text-right"
-                style={{ color: "#2A384C" }}
-              >
-                {tax.toFixed(2)}%
-              </span>
-            </div>
-
-            <label className="block mb-1 font-semibold text-sm" style={{ color: "#2A384C" }}>
-              Monthly Insurance
-            </label>
-            <div className="flex items-center gap-3">
-              <input
-                type="range"
-                min={50}
-                max={400}
-                step={10}
-                value={insurance}
-                onChange={(e) => setInsurance(+e.target.value)}
-                className="flex-1 accent-[#2A384C]"
-              />
-              <span
-                className="font-bold text-lg min-w-[70px] text-right"
-                style={{ color: "#2A384C" }}
-              >
-                {fmt(insurance)}
-              </span>
+            <div className="border-2 rounded-xl p-5" style={{ borderColor: "#d1d9df" }}>
+              <p className="text-sm font-medium mb-1" style={{ color: "#6b7280" }}>
+                Annual Savings
+              </p>
+              <p className="text-3xl font-bold" style={{ color: "#2a384c" }}>
+                {fmt(annualSavings)}
+              </p>
+              <p className="text-sm" style={{ color: "#9ca3af" }}>
+                per year
+              </p>
             </div>
           </div>
 
-          {/* Results */}
-          <div className="rounded-2xl p-8 shadow-lg text-white" style={{ background: "#2A384C" }}>
-            <h3
-              className="text-2xl font-bold mb-6"
-              style={{ fontFamily: "Sansita, serif" }}
-            >
-              Your Charlotte Buying Power
-            </h3>
-
-            <div className="space-y-5">
-              <ResultRow label="Estimated Home Price" value={fmt(r.homePrice)} highlight />
-              <ResultRow label="Down Payment" value={fmt(r.downPayment)} />
-              <ResultRow label="Loan Amount" value={fmt(r.loanAmount)} />
-
-              <div className="border-t border-white/20 pt-5">
-                <p className="text-sm opacity-70 mb-3">Monthly Payment Breakdown</p>
-                <ResultRow label="Principal & Interest" value={fmt(r.monthlyPI)} />
-                <ResultRow label="Property Tax" value={fmt(r.monthlyTax)} />
-                <ResultRow label="Insurance" value={fmt(insurance)} />
-              </div>
-
-              <div className="border-t border-white/20 pt-5">
-                <ResultRow label="Total Monthly Payment" value={fmt(r.totalMonthly)} highlight />
-                <div className="mt-3 rounded-xl p-4" style={{ background: "rgba(160,178,194,0.2)" }}>
-                  <p className="text-sm opacity-70">Compared to your NYC rent</p>
-                  <p className="text-3xl font-bold" style={{ fontFamily: "Sansita, serif" }}>
-                    {r.savings > 0
-                      ? `You save ${fmt(r.savings)}/mo`
-                      : `${fmt(Math.abs(r.savings))}/mo more`}
-                  </p>
-                  {r.savings > 0 && (
-                    <p className="text-sm opacity-70 mt-1">
-                      That&apos;s {fmt(r.savings * 12)} per year â and you&apos;re building equity!
-                    </p>
-                  )}
-                </div>
-              </div>
+          {/* Estimated Home Price */}
+          <div
+            className="rounded-xl p-6 flex items-start gap-4"
+            style={{ background: "#2a384c" }}
+          >
+            <div className="mt-1">
+              <HomeFilledIcon />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-white/70">
+                Estimated Home Price
+              </p>
+              <p
+                className="text-3xl font-bold text-white"
+                style={{ fontFamily: "Sansita, serif" }}
+              >
+                {fmt(homePrice)}
+              </p>
+              <p className="text-sm text-white/60 mt-1">
+                Based on your current rent payment, you could afford a home in
+                this price range in Charlotte
+              </p>
             </div>
           </div>
         </div>
@@ -242,565 +276,360 @@ function Calculator() {
   );
 }
 
-function ResultRow({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className="flex justify-between items-center">
-      <span className={highlight ? "font-semibold text-lg" : "text-sm opacity-80"}>{label}</span>
-      <span
-        className={highlight ? "text-2xl font-bold" : "font-semibold"}
-        style={highlight ? { fontFamily: "Sansita, serif" } : {}}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
-/* âââ Cost Comparison Card âââ */
-function CostCard({ item, nyc, clt }: { item: string; nyc: string; clt: string }) {
-  return (
-    <div className="rounded-xl p-6 shadow-md" style={{ background: "#FFFFFF" }}>
-      <h4 className="font-bold text-lg mb-3" style={{ color: "#2A384C" }}>{item}</h4>
-      <div className="flex justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-wide" style={{ color: "#A0B2C2" }}>NYC</p>
-          <p className="font-bold text-lg" style={{ color: "#2A384C" }}>{nyc}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs uppercase tracking-wide" style={{ color: "#A0B2C2" }}>Charlotte</p>
-          <p className="font-bold text-lg" style={{ color: "#2A384C" }}>{clt}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* âââ Neighborhood Card âââ */
-function NeighborhoodCard({
-  name,
-  vibe,
-  price,
+/* âââ Why Card âââ */
+function WhyCard({
+  icon,
+  title,
   description,
 }: {
-  name: string;
-  vibe: string;
-  price: string;
+  icon: React.ReactNode;
+  title: string;
   description: string;
 }) {
   return (
-    <div
-      className="rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow border-l-4"
-      style={{ background: "#FFFFFF", borderLeftColor: "#A0B2C2" }}
-    >
-      <h4
-        className="text-xl font-bold mb-1"
-        style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
+    <div className="border rounded-2xl p-8 hover:shadow-lg transition-shadow" style={{ borderColor: "#e5e7eb" }}>
+      <div
+        className="w-12 h-12 rounded-full flex items-center justify-center mb-5"
+        style={{ background: "#f0f0f0", color: "#a0b2c2" }}
       >
-        {name}
-      </h4>
-      <p className="text-sm font-medium mb-2" style={{ color: "#A0B2C2" }}>
-        {vibe} Â· Median {price}
-      </p>
-      <p className="text-sm leading-relaxed" style={{ color: "#2A384C" }}>{description}</p>
-    </div>
-  );
-}
-
-/* âââ FAQ Item âââ */
-function FAQ({ q, a }: { q: string; a: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div
-      className="border-b py-5 cursor-pointer"
-      style={{ borderColor: "#D1D9DF" }}
-      onClick={() => setOpen(!open)}
-    >
-      <div className="flex justify-between items-center">
-        <h4 className="font-bold text-lg" style={{ color: "#2A384C" }}>{q}</h4>
-        <span className="text-2xl" style={{ color: "#A0B2C2" }}>
-          {open ? "â" : "+"}
-        </span>
+        {icon}
       </div>
-      {open && (
-        <p className="mt-3 text-sm leading-relaxed" style={{ color: "#2A384C" }}>{a}</p>
-      )}
+      <h3
+        className="text-xl font-bold mb-3"
+        style={{ fontFamily: "Sansita, serif", color: "#2a384c" }}
+      >
+        {title}
+      </h3>
+      <p className="text-sm leading-relaxed" style={{ color: "#6b7280" }}>
+        {description}
+      </p>
     </div>
   );
 }
 
-/* âââ MAIN PAGE âââ */
+/* âââ Lead Form âââ */
+function LeadForm({
+  showPhone = false,
+  buttonText = "Get My Free Relocation Guide",
+  privacyText = "We respect your privacy. No spam, ever.",
+}: {
+  showPhone?: boolean;
+  buttonText?: string;
+  privacyText?: string;
+}) {
+  const [firstName, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    // In production, connect to CRM / email service
+    alert(
+      `Thank you, ${firstName}! We'll send your Relocation Playbook to ${email}.`
+    );
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <label className="block font-semibold text-sm mb-1.5" style={{ color: "#2a384c" }}>
+          First Name{showPhone && " *"}
+        </label>
+        <input
+          type="text"
+          placeholder="John"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          required
+          className="w-full border-2 rounded-lg px-4 py-3 focus:outline-none focus:border-[#2a384c] transition-colors"
+          style={{ borderColor: "#d1d9df" }}
+        />
+      </div>
+      <div>
+        <label className="block font-semibold text-sm mb-1.5" style={{ color: "#2a384c" }}>
+          Email Address{showPhone && " *"}
+        </label>
+        <input
+          type="email"
+          placeholder="john@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full border-2 rounded-lg px-4 py-3 focus:outline-none focus:border-[#2a384c] transition-colors"
+          style={{ borderColor: "#d1d9df" }}
+        />
+      </div>
+      {showPhone && (
+        <div>
+          <input
+            type="tel"
+            placeholder="(555) 123-4567"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="w-full border-2 rounded-lg px-4 py-3 focus:outline-none focus:border-[#2a384c] transition-colors"
+            style={{ borderColor: "#d1d9df" }}
+          />
+        </div>
+      )}
+      <button
+        type="submit"
+        className="w-full py-4 rounded-lg font-bold text-lg text-white transition-all hover:opacity-90"
+        style={{ background: "#2a384c" }}
+      >
+        {buttonText}
+      </button>
+      <p className="text-center text-sm" style={{ color: "#9ca3af" }}>
+        ð {privacyText}
+      </p>
+    </form>
+  );
+}
+
+/* âââ Main Page âââ */
 export default function Home() {
   return (
-    <main>
-      {/* âââ Navigation âââ */}
-      <nav
-        className="fixed top-0 left-0 right-0 z-50 px-6 py-4 backdrop-blur-md"
-        style={{ background: "rgba(42,56,76,0.95)" }}
+    <main style={{ fontFamily: "Inter, sans-serif" }}>
+      {/* ââ Sticky Header ââ */}
+      <header
+        className="border-b sticky top-0 z-50 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80"
+        style={{ borderColor: "#e5e7eb" }}
       >
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <a href="#" className="text-white font-bold text-xl" style={{ fontFamily: "Sansita, serif" }}>
-            Home Grown Property Group
+        <div className="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
+          <Logo />
+          <a
+            href="#lead-form"
+            className="px-5 py-2.5 rounded-lg font-semibold text-sm text-white transition-all hover:opacity-90"
+            style={{ background: "#2a384c" }}
+          >
+            Get the Playbook
           </a>
-          <div className="hidden md:flex gap-6 text-sm">
-            {["Why Charlotte", "Cost of Living", "Calculator", "Neighborhoods", "Jobs", "FAQ", "Contact"].map(
-              (item) => (
-                <a
-                  key={item}
-                  href={`#${item.toLowerCase().replace(/ /g, "-")}`}
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  {item}
-                </a>
-              )
-            )}
-          </div>
         </div>
-      </nav>
+      </header>
 
-      {/* âââ Hero âââ */}
-      <section
-        className="relative min-h-screen flex items-center justify-center text-center px-4"
-        style={{
-          background: "linear-gradient(135deg, #2A384C 0%, #3a4f6a 50%, #2A384C 100%)",
-        }}
-      >
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage:
-              'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-          }}
-        />
-        <div className="relative z-10 max-w-4xl">
-          <p className="text-sm uppercase tracking-[0.3em] mb-4" style={{ color: "#A0B2C2" }}>
-            Your Complete Relocation Guide
-          </p>
-          <h1
-            className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight"
-            style={{ fontFamily: "Sansita, serif" }}
-          >
-            NYC to Charlotte
-          </h1>
-          <p className="text-xl md:text-2xl text-white/80 mb-8 max-w-2xl mx-auto">
-            Trade the subway for sweet tea. Discover why thousands of New Yorkers are making
-            Charlotte their new home â and how your rent check could become a mortgage payment.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#calculator"
-              className="px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105"
-              style={{ background: "#A0B2C2", color: "#2A384C" }}
+      {/* ââ Hero Section ââ */}
+      <section className="relative overflow-hidden text-white">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="https://images.unsplash.com/photo-1569880153113-76e33fc52b5f?w=1600&q=80"
+            alt="Charlotte Skyline"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(42,56,76,0.88) 0%, rgba(42,56,76,0.75) 50%, rgba(42,56,76,0.88) 100%)",
+            }}
+          />
+        </div>
+
+        <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
+          {/* Left: Copy */}
+          <div>
+            <div
+              className="inline-block px-4 py-2 rounded-full text-sm font-medium mb-6"
+              style={{ background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.9)" }}
             >
-              Try the Calculator
-            </a>
-            <a
-              href="#why-charlotte"
-              className="px-8 py-4 rounded-xl font-bold text-lg border-2 text-white hover:bg-white/10 transition-all"
-              style={{ borderColor: "#A0B2C2" }}
+              For NYC Renters Moving to Charlotte
+            </div>
+            <h1
+              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
+              style={{ fontFamily: "Sansita, serif" }}
             >
-              Explore the Guide
-            </a>
+              Stop Paying
+              <br />
+              <span style={{ color: "#a0b2c2" }}>$5,137/Month</span>
+              <br />
+              in Rent
+            </h1>
+            <p className="text-lg md:text-xl text-white/80 mb-8 max-w-lg">
+              Own a beautiful 4-bedroom Charlotte home for less than your
+              Manhattan studio costs.
+            </p>
+            <div className="flex flex-wrap gap-6 text-sm text-white/80">
+              <span className="flex items-center gap-2">
+                <span style={{ color: "#a0b2c2" }}>
+                  <CheckIcon />
+                </span>
+                157 people move here daily
+              </span>
+              <span className="flex items-center gap-2">
+                <span style={{ color: "#a0b2c2" }}>
+                  <CheckIcon />
+                </span>
+                #4 fastest-growing metro
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-6 text-sm text-white/80 mt-3">
+              <span className="flex items-center gap-2">
+                <span style={{ color: "#a0b2c2" }}>
+                  <CheckIcon />
+                </span>
+                76% are renters like you
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <svg width="24" height="24" fill="none" stroke="#A0B2C2" strokeWidth="2" viewBox="0 0 24 24">
-            <path d="M12 5v14M5 12l7 7 7-7" />
-          </svg>
-        </div>
-      </section>
-
-      {/* âââ Why Charlotte âââ */}
-      <section id="why-charlotte" className="py-20 px-4" style={{ background: "#FFFFFF" }}>
-        <div className="max-w-6xl mx-auto">
-          <h2
-            className="text-4xl md:text-5xl font-bold text-center mb-4"
-            style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
-          >
-            Why Charlotte?
-          </h2>
-          <p className="text-center text-lg mb-12 max-w-2xl mx-auto" style={{ color: "#2A384C" }}>
-            Charlotte is one of the fastest-growing cities in America â and for good reason.
-            Here&apos;s what draws New Yorkers south.
-          </p>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: "ð°",
-                title: "50% Lower Cost of Living",
-                desc: "Your dollar stretches dramatically further. A $3,500/mo NYC apartment translates to a 3-bedroom home with a yard in Charlotte.",
-              },
-              {
-                icon: "âï¸",
-                title: "218 Sunny Days Per Year",
-                desc: "Mild winters, gorgeous falls, and long summers. No more shoveling sidewalks at 6 AM or paying $200 to store your winter coat.",
-              },
-              {
-                icon: "ð¢",
-                title: "Booming Job Market",
-                desc: "Charlotte is the #2 banking center in the US. Bank of America, Wells Fargo, Truist, and hundreds of tech companies call it home.",
-              },
-              {
-                icon: "ð¡",
-                title: "Space to Breathe",
-                desc: "Average home size in Charlotte is 2,200 sq ft vs. 750 sq ft in NYC. Garages, backyards, and home offices are the norm.",
-              },
-              {
-                icon: "ð",
-                title: "Top-Rated Schools",
-                desc: "Charlotte-Mecklenburg Schools plus excellent private and charter options. South Charlotte and Fort Mill are especially popular with families.",
-              },
-              {
-                icon: "ð",
-                title: "20-Minute Commutes",
-                desc: "Average commute is 26 minutes by car. No more hour-long subway rides standing in a packed train.",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="rounded-2xl p-6 hover:shadow-lg transition-shadow"
-                style={{ background: "#F0F0F0" }}
+          {/* Right: Lead Form */}
+          <div className="bg-white rounded-2xl p-8 shadow-2xl">
+            <div className="text-center mb-6">
+              <span
+                className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide mb-3"
+                style={{
+                  background: "#f0f0f0",
+                  color: "#2a384c",
+                }}
               >
-                <span className="text-4xl mb-4 block">{item.icon}</span>
-                <h3
-                  className="text-xl font-bold mb-2"
-                  style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
-                >
-                  {item.title}
-                </h3>
-                <p className="text-sm leading-relaxed" style={{ color: "#2A384C" }}>{item.desc}</p>
-              </div>
-            ))}
+                FREE DOWNLOAD
+              </span>
+              <h2
+                className="text-2xl font-bold mb-2"
+                style={{ fontFamily: "Sansita, serif", color: "#2a384c" }}
+              >
+                Get the Free NYC to Charlotte
+                <br />
+                Relocation Playbook
+              </h2>
+              <p className="text-sm" style={{ color: "#6b7280" }}>
+                Neighborhood guides, cost breakdowns & insider tips â
+                delivered instantly.
+              </p>
+            </div>
+            <LeadForm />
           </div>
         </div>
       </section>
 
-      {/* âââ Cost of Living Comparison âââ */}
-      <section id="cost-of-living" className="py-20 px-4" style={{ background: "#D1D9DF" }}>
-        <div className="max-w-6xl mx-auto">
-          <h2
-            className="text-4xl md:text-5xl font-bold text-center mb-4"
-            style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
-          >
-            Cost of Living Comparison
-          </h2>
-          <p className="text-center text-lg mb-12 max-w-2xl mx-auto" style={{ color: "#2A384C" }}>
-            Real numbers, real savings. See how everyday expenses stack up.
-          </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <CostCard item="1-Bedroom Apartment (City)" nyc="$3,500/mo" clt="$1,450/mo" />
-            <CostCard item="3-Bedroom Home (Mortgage)" nyc="$5,200/mo" clt="$2,100/mo" />
-            <CostCard item="Groceries (Monthly)" nyc="$650" clt="$425" />
-            <CostCard item="Dinner for Two" nyc="$120" clt="$65" />
-            <CostCard item="Monthly Transit / Gas" nyc="$132" clt="$150" />
-            <CostCard item="Childcare (Monthly)" nyc="$2,800" clt="$1,200" />
-            <CostCard item="Gym Membership" nyc="$120/mo" clt="$45/mo" />
-            <CostCard item="State Income Tax" nyc="Up to 10.9%" clt="4.5% flat" />
-            <CostCard item="Average Home Price" nyc="$750,000+" clt="$380,000" />
-          </div>
-          <p className="text-center text-sm mt-8 opacity-70" style={{ color: "#2A384C" }}>
-            Sources: Bureau of Labor Statistics, Zillow, Numbeo, 2025 data
-          </p>
-        </div>
-      </section>
-
-      {/* âââ Calculator âââ */}
+      {/* ââ Calculator ââ */}
       <Calculator />
 
-      {/* âââ Neighborhoods âââ */}
-      <section id="neighborhoods" className="py-20 px-4" style={{ background: "#FFFFFF" }}>
-        <div className="max-w-6xl mx-auto">
+      {/* ââ Why New Yorkers Choose Charlotte ââ */}
+      <section className="py-20" style={{ background: "#ffffff" }}>
+        <div className="max-w-6xl mx-auto px-6">
           <h2
-            className="text-4xl md:text-5xl font-bold text-center mb-4"
-            style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
+            className="text-4xl md:text-5xl font-bold text-center mb-3"
+            style={{ fontFamily: "Sansita, serif", color: "#2a384c" }}
           >
-            Neighborhoods New Yorkers Love
+            Why New Yorkers Choose Charlotte
           </h2>
-          <p className="text-center text-lg mb-12 max-w-2xl mx-auto" style={{ color: "#2A384C" }}>
-            Whether you want urban energy, suburban calm, or small-town charm â Charlotte
-            has your neighborhood.
+          <p className="text-center text-lg mb-12" style={{ color: "#6b7280" }}>
+            Join the 157 people who move here every day for better quality of
+            life
           </p>
-          <div className="grid md:grid-cols-2 gap-6">
-            <NeighborhoodCard
-              name="South End"
-              vibe="Brooklyn Vibes"
-              price="$450K"
-              description="Walkable, brewery-filled, and connected by the LYNX light rail. South End is where NYC transplants feel most at home. Street art, rooftop bars, and new construction condos everywhere you look."
+          <div className="grid md:grid-cols-3 gap-6">
+            <WhyCard
+              icon={<DollarIcon />}
+              title="Lower Cost of Living"
+              description="Charlotte costs 28% less than NYC. Keep your remote job, slash your expenses, and actually save money every month."
             />
-            <NeighborhoodCard
-              name="NoDa (North Davidson)"
-              vibe="Williamsburg Energy"
-              price="$380K"
-              description="Charlotte's arts district. Live music venues, galleries, craft cocktail bars, and a thriving creative community. More affordable than South End with serious character."
+            <WhyCard
+              icon={<TrendingIcon />}
+              title="Booming Job Market"
+              description="37,600 jobs added in 2025. #4 fastest-growing metro nationally. Major companies are relocating here."
             />
-            <NeighborhoodCard
-              name="Dilworth / Myers Park"
-              vibe="Upper West Side Elegance"
-              price="$750K"
-              description="Tree-lined streets, historic homes, top-rated schools, and walkable to Uptown. This is where Charlotte's established families live. Think Park Slope meets Georgetown."
+            <WhyCard
+              icon={<MapPinIcon />}
+              title="Great Neighborhoods"
+              description="Walkable areas like Dilworth and South End offer the urban vibe you loveâwith actual space and greenery."
             />
-            <NeighborhoodCard
-              name="Ballantyne / South Charlotte"
-              vibe="Family-Friendly Suburbs"
-              price="$550K"
-              description="Excellent schools, master-planned communities, pools, parks, and every retail convenience imaginable. Perfect for families who want space and a strong community."
+            <WhyCard
+              icon={<HomeIcon />}
+              title="Build Equity"
+              description="Stop enriching your landlord. Every payment builds your wealth. Charlotte home values up 7.7% this year."
             />
-            <NeighborhoodCard
-              name="Fort Mill, SC"
-              vibe="Best of Both Worlds"
-              price="$420K"
-              description="Just across the SC border (15 min to Uptown Charlotte). No state income tax in SC, nationally ranked schools, and brand-new construction. Huge draw for NYC families."
+            <WhyCard
+              icon={<UsersIcon />}
+              title="Growing NYC Community"
+              description="You won't be alone. Thousands of New Yorkers have already made the move and love it here."
             />
-            <NeighborhoodCard
-              name="Indian Land / Waxhaw"
-              vibe="Country Meets Convenience"
-              price="$380K"
-              description="More land, newer builds, and a small-town feel with easy access to Charlotte. Perfect for those craving space, good schools, and a slower pace without sacrificing convenience."
-            />
-            <NeighborhoodCard
-              name="Plaza Midwood"
-              vibe="East Village Eclectic"
-              price="$425K"
-              description="Diverse, funky, and full of personality. Independent restaurants, vintage shops, and a vibrant nightlife scene. One of Charlotte's most walkable neighborhoods."
-            />
-            <NeighborhoodCard
-              name="Uptown Charlotte"
-              vibe="Midtown Manhattan (Compact)"
-              price="$400K"
-              description="Charlotte's downtown core. High-rises, the Panthers stadium, the Spectrum Center, museums, and a growing food scene. Walkable and transit-connected."
+            <WhyCard
+              icon={<CheckCircleIcon />}
+              title="Better Quality of Life"
+              description="Less traffic, more space, better weather. Work-life balance that's actually balanced."
             />
           </div>
         </div>
       </section>
 
-      {/* âââ Job Market âââ */}
-      <section id="jobs" className="py-20 px-4" style={{ background: "#F0F0F0" }}>
-        <div className="max-w-6xl mx-auto">
-          <h2
-            className="text-4xl md:text-5xl font-bold text-center mb-4"
-            style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
-          >
-            Charlotte Job Market
-          </h2>
-          <p className="text-center text-lg mb-12 max-w-2xl mx-auto" style={{ color: "#2A384C" }}>
-            Charlotte isn&apos;t just affordable â it&apos;s a career accelerator.
-          </p>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="rounded-2xl p-8 shadow-md" style={{ background: "#FFFFFF" }}>
-              <h3
-                className="text-2xl font-bold mb-4"
-                style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
-              >
-                Top Industries
-              </h3>
-              <ul className="space-y-3">
-                {[
-                  "Banking & Finance â Bank of America HQ, Wells Fargo East Coast HQ, Truist HQ",
-                  "Technology â Microsoft, Google, Apple, Honeywell, Red Ventures, LendingTree",
-                  "Healthcare â Atrium Health (Advocate), Novant Health",
-                  "Energy â Duke Energy HQ, Nucor, Trane Technologies",
-                  "Motorsports â NASCAR HQ and 90% of all racing teams",
-                  "Logistics â Charlotte Douglas Airport is a major American Airlines hub",
-                ].map((item) => (
-                  <li key={item} className="flex gap-3 text-sm" style={{ color: "#2A384C" }}>
-                    <span style={{ color: "#A0B2C2" }}>â¸</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-2xl p-8 shadow-md" style={{ background: "#FFFFFF" }}>
-              <h3
-                className="text-2xl font-bold mb-4"
-                style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
-              >
-                By the Numbers
-              </h3>
-              <div className="space-y-6">
-                {[
-                  { stat: "3.2%", label: "Unemployment rate (below national avg)" },
-                  { stat: "#2", label: "Largest banking center in the US" },
-                  { stat: "100+", label: "Fortune 500 & Fortune 1000 companies in metro" },
-                  { stat: "15%", label: "Job growth over past 5 years" },
-                  { stat: "$62K", label: "Median household income" },
-                  { stat: "Remote-Friendly", label: "Many employers offer hybrid/remote work" },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-baseline gap-4">
-                    <span
-                      className="text-3xl font-bold"
-                      style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
-                    >
-                      {item.stat}
-                    </span>
-                    <span className="text-sm" style={{ color: "#A0B2C2" }}>
-                      {item.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* âââ Relocation Timeline âââ */}
-      <section className="py-20 px-4" style={{ background: "#2A384C" }}>
-        <div className="max-w-4xl mx-auto text-center">
-          <h2
-            className="text-4xl md:text-5xl font-bold mb-4 text-white"
-            style={{ fontFamily: "Sansita, serif" }}
-          >
-            Your Relocation Timeline
-          </h2>
-          <p className="text-lg mb-12 text-white/70">
-            A month-by-month guide to making the move.
-          </p>
-          <div className="space-y-0">
-            {[
-              {
-                month: "3-6 Months Before",
-                tasks: "Research neighborhoods. Get pre-approved for a mortgage. Connect with a Charlotte real estate agent. Start exploring remote work options with your employer.",
-              },
-              {
-                month: "2-3 Months Before",
-                tasks: "Plan a visit to tour neighborhoods and homes. Start the home search. Begin decluttering your NYC apartment (you won't need all that stuff).",
-              },
-              {
-                month: "1-2 Months Before",
-                tasks: "Make an offer and close on your Charlotte home. Give notice to your NYC landlord. Book movers. Notify utilities and update your address.",
-              },
-              {
-                month: "Moving Month",
-                tasks: "Final walkthrough of your new home. Coordinate movers. Set up Charlotte utilities, internet, and services. Get your NC driver's license within 60 days.",
-              },
-              {
-                month: "First 90 Days",
-                tasks: "Explore your new neighborhood. Join local groups and communities. Register kids for school. Find your go-to restaurants, gym, and coffee shop.",
-              },
-            ].map((step, i) => (
-              <div key={step.month} className="flex gap-6 text-left">
-                <div className="flex flex-col items-center">
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm"
-                    style={{ background: "#A0B2C2", color: "#2A384C" }}
-                  >
-                    {i + 1}
-                  </div>
-                  {i < 4 && (
-                    <div className="w-0.5 flex-1" style={{ background: "#A0B2C2", opacity: 0.3 }} />
-                  )}
-                </div>
-                <div className="pb-8">
-                  <h4 className="font-bold text-lg text-white" style={{ fontFamily: "Sansita, serif" }}>
-                    {step.month}
-                  </h4>
-                  <p className="text-sm text-white/70 mt-1">{step.tasks}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* âââ FAQ âââ */}
-      <section id="faq" className="py-20 px-4" style={{ background: "#FFFFFF" }}>
-        <div className="max-w-3xl mx-auto">
-          <h2
-            className="text-4xl md:text-5xl font-bold text-center mb-12"
-            style={{ fontFamily: "Sansita, serif", color: "#2A384C" }}
-          >
-            Frequently Asked Questions
-          </h2>
-          <FAQ
-            q="Is Charlotte really that much cheaper than NYC?"
-            a="Yes. On average, the cost of living in Charlotte is about 47% lower than New York City. Housing is the biggest difference â you can buy a 3-bedroom home in Charlotte for what you'd pay for a studio condo in Manhattan. Groceries, dining, childcare, and taxes are all significantly cheaper."
-          />
-          <FAQ
-            q="What about salaries? Will I take a pay cut?"
-            a="Some industries adjust salaries for cost of living, but many remote roles maintain NYC-level pay. Even with a 10-15% salary reduction, your purchasing power in Charlotte is dramatically higher. A $150K salary in Charlotte gives you the lifestyle of a $250K salary in NYC."
-          />
-          <FAQ
-            q="Do I need a car in Charlotte?"
-            a="For most people, yes. Charlotte is a car-friendly city. The LYNX light rail connects South End to Uptown and is expanding, but having a car gives you the most flexibility. The good news: gas is cheaper, parking is free almost everywhere, and there's no parallel parking stress."
-          />
-          <FAQ
-            q="What's the weather like?"
-            a="Charlotte has four distinct seasons. Summers are warm and humid (85-95Â°F), winters are mild (35-50Â°F) with occasional ice storms but very little snow. Spring and fall are absolutely gorgeous â think 60-75Â°F with blue skies."
-          />
-          <FAQ
-            q="How's the food scene compared to NYC?"
-            a="Charlotte's food scene has exploded in the last decade. You'll find incredible BBQ, Southern cuisine, and a growing international food scene. It's not NYC-level variety yet, but the quality is excellent and prices are half. Plus, you can actually get a reservation."
-          />
-          <FAQ
-            q="What about the airport? Can I still get to NYC easily?"
-            a="Charlotte Douglas International Airport (CLT) is an American Airlines hub with direct flights to all three NYC airports. Flight time is about 2 hours. You can be back in Manhattan for dinner with same-day travel."
-          />
-          <FAQ
-            q="Should I buy in NC or SC (Fort Mill area)?"
-            a="Both are great options. South Carolina has no state income tax on the first $0-$3,460 and a lower overall rate. Fort Mill specifically has outstanding schools. North Carolina has a flat 4.5% state income tax. Your best choice depends on your commute, school preferences, and tax situation. We can help you figure this out."
+      {/* ââ Full-Width Neighborhood Image ââ */}
+      <section className="py-0">
+        <div className="relative w-full h-[400px] md:h-[500px]">
+          <Image
+            src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1600&q=80"
+            alt="Beautiful Charlotte Neighborhood"
+            fill
+            className="object-cover"
           />
         </div>
       </section>
 
-      {/* âââ Contact CTA âââ */}
+      {/* ââ Bottom CTA / Lead Form ââ */}
       <section
-        id="contact"
-        className="py-20 px-4 text-center"
+        id="lead-form"
+        className="py-20"
         style={{
-          background: "linear-gradient(135deg, #2A384C 0%, #3a4f6a 100%)",
+          background: "linear-gradient(135deg, #2a384c 0%, #a0b2c2 100%)",
         }}
       >
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-2xl mx-auto px-6 text-center">
           <h2
             className="text-4xl md:text-5xl font-bold text-white mb-4"
             style={{ fontFamily: "Sansita, serif" }}
           >
-            Ready to Make the Move?
+            Get the Free NYC to Charlotte Relocation Playbook
           </h2>
-          <p className="text-xl text-white/80 mb-8">
-            Home Grown Property Group specializes in helping New York transplants find their
-            perfect Charlotte home. Whether you&apos;re 6 months out or ready to move next week,
-            we&apos;re here to help.
+          <p className="text-lg text-white/80 mb-10">
+            Download our comprehensive relocation guide with neighborhood
+            comparisons, cost breakdowns, and insider tips.
           </p>
-          <div className="grid sm:grid-cols-2 gap-6 mb-8 max-w-lg mx-auto">
-            <a
-              href="tel:9802619222"
-              className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold transition-all hover:scale-105"
-              style={{ background: "#A0B2C2", color: "#2A384C" }}
-            >
-              <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-              </svg>
-              980-261-9222
-            </a>
-            <a
-              href="mailto:brian@homegrownpropertygroup.com"
-              className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold border-2 text-white hover:bg-white/10 transition-all"
-              style={{ borderColor: "#A0B2C2" }}
-            >
-              <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z" />
-              </svg>
-              Email Us
-            </a>
+          <div className="bg-white rounded-2xl p-8 shadow-2xl">
+            <LeadForm
+              showPhone
+              privacyText="We respect your privacy. Your information will never be shared."
+            />
           </div>
-          <p className="text-sm text-white/50">
-            Home Grown Property Group Â· Charlotte, NC Â· Real Broker, LLC
-          </p>
         </div>
       </section>
 
-      {/* âââ Footer âââ */}
-      <footer className="py-8 px-4" style={{ background: "#1a2535" }}>
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-white/50">
-            Â© {new Date().getFullYear()} Home Grown Property Group. All rights reserved.
-          </p>
-          <p className="text-xs text-white/30 max-w-lg text-center md:text-right">
-            This guide is for informational purposes only. Housing prices, rates, and market
-            data are approximations and may change. Contact us for current market information.
-          </p>
+      {/* ââ Footer ââ */}
+      <footer className="py-12" style={{ background: "#2a384c" }}>
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-8">
+          <div>
+            <div className="mb-4">
+              {/* Small white logo */}
+              <div className="flex items-center gap-2">
+                <svg width="24" height="24" viewBox="0 0 100 100" fill="none">
+                  <circle cx="50" cy="35" r="28" fill="white" opacity="0.2" />
+                  <path
+                    d="M50 75 L50 55 M50 55 Q35 45 30 30 Q28 20 40 18 Q45 17 50 22 Q55 17 60 18 Q72 20 70 30 Q65 45 50 55"
+                    stroke="white"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span className="text-white font-bold text-sm tracking-wide" style={{ fontFamily: "Inter, sans-serif" }}>
+                  HOME GROWN
+                </span>
+                <span className="text-white/50 mx-1">|</span>
+                <span className="text-white/70 text-xs" style={{ fontFamily: "Inter, sans-serif" }}>
+                  real
+                </span>
+              </div>
+            </div>
+            <p className="text-white/60 text-sm max-w-xs">
+              Helping New Yorkers find their dream homes in Charlotte, NC.
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-white/60 text-sm">
+              Â© 2026 Home Grown Property Group. All rights reserved.
+            </p>
+            <p className="text-white/40 text-sm mt-1">Real Broker, LLC</p>
+          </div>
         </div>
       </footer>
     </main>
