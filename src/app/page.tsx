@@ -82,13 +82,13 @@ function CheckIcon() {
 /* ─── Logo Component ─── */
 function Logo({ size = "normal" }: { size?: "normal" | "small" }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center">
       <Image
         src="/images/hgpg-logo.png"
         alt="Home Grown Property Group"
-        width={size === "small" ? 32 : 44}
-        height={size === "small" ? 32 : 44}
-        className="object-contain"
+        width={size === "small" ? 96 : 240}
+        height={size === "small" ? 96 : 240}
+        className={`object-contain ${size === "small" ? "h-24 w-auto" : "h-60 w-auto"}`}
       />
     </div>
   );
@@ -253,17 +253,16 @@ function WhyCard({
 
 /* ─── Lead Form ─── */
 function LeadForm({
-  showPhone = false,
+  showRequired = false,
   buttonText = "Get My Free Relocation Guide",
   privacyText = "We respect your privacy. No spam, ever.",
 }: {
-  showPhone?: boolean;
+  showRequired?: boolean;
   buttonText?: string;
   privacyText?: string;
 }) {
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -277,7 +276,7 @@ function LeadForm({
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label className="block font-semibold text-sm mb-1.5" style={{ color: "#2a384c" }}>
-          First Name{showPhone && " *"}
+          First Name{showRequired && " *"}
         </label>
         <input
           type="text"
@@ -291,7 +290,7 @@ function LeadForm({
       </div>
       <div>
         <label className="block font-semibold text-sm mb-1.5" style={{ color: "#2a384c" }}>
-          Email Address{showPhone && " *"}
+          Email Address{showRequired && " *"}
         </label>
         <input
           type="email"
@@ -303,18 +302,6 @@ function LeadForm({
           style={{ borderColor: "#d1d9df" }}
         />
       </div>
-      {showPhone && (
-        <div>
-          <input
-            type="tel"
-            placeholder="(555) 123-4567"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full border-2 rounded-lg px-4 py-3 focus:outline-none focus:border-[#2a384c] transition-colors"
-            style={{ borderColor: "#d1d9df" }}
-          />
-        </div>
-      )}
       <button
         type="submit"
         className="w-full py-4 rounded-lg font-bold text-lg text-white transition-all hover:opacity-90"
@@ -338,7 +325,7 @@ export default function Home() {
         className="border-b sticky top-0 z-50 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80"
         style={{ borderColor: "#e5e7eb" }}
       >
-        <div className="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-6 flex h-32 items-center justify-between">
           <Logo />
           <a
             href="#lead-form"
@@ -531,7 +518,7 @@ export default function Home() {
           </p>
           <div className="bg-white rounded-2xl p-8 shadow-2xl">
             <LeadForm
-              showPhone
+              showRequired
               privacyText="We respect your privacy. Your information will never be shared."
             />
           </div>
@@ -546,9 +533,9 @@ export default function Home() {
               <Image
                 src="/images/hgpg-logo.png"
                 alt="Home Grown Property Group"
-                width={40}
-                height={40}
-                className="object-contain brightness-0 invert opacity-80"
+                width={96}
+                height={96}
+                className="h-24 w-auto object-contain brightness-0 invert"
               />
             </div>
             <p className="text-white/60 text-sm max-w-xs">
