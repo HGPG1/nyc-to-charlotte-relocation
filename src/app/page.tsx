@@ -81,64 +81,15 @@ function CheckIcon() {
 
 /* ─── Logo Component ─── */
 function Logo({ size = "normal" }: { size?: "normal" | "small" }) {
-  const h = size === "small" ? "h-8" : "h-12";
   return (
-    <div className="flex items-center gap-3">
-      {/* Tree icon */}
-      <div className="flex items-center gap-2">
-        <svg
-          width={size === "small" ? "28" : "40"}
-          height={size === "small" ? "28" : "40"}
-          viewBox="0 0 100 100"
-          fill="none"
-        >
-          <circle cx="50" cy="35" r="28" fill="#a0b2c2" opacity="0.3" />
-          <path
-            d="M50 75 L50 55 M50 55 Q35 45 30 30 Q28 20 40 18 Q45 17 50 22 Q55 17 60 18 Q72 20 70 30 Q65 45 50 55 M50 60 Q40 52 38 45 M50 58 Q60 50 62 43 M42 75 L58 75"
-            stroke="#2a384c"
-            strokeWidth="2.5"
-            fill="none"
-            strokeLinecap="round"
-          />
-          <text x="50" y="95" textAnchor="middle" fontSize="8" fill="#2a384c" fontWeight="600" fontFamily="Inter, sans-serif" letterSpacing="1">
-            PROPERTY GROUP
-          </text>
-        </svg>
-        <div className="flex flex-col leading-tight">
-          <span
-            className={`font-bold tracking-wide ${size === "small" ? "text-xs" : "text-base"}`}
-            style={{ color: "#2a384c", fontFamily: "Inter, sans-serif" }}
-          >
-            HOME GROWN
-          </span>
-          <span
-            className={`tracking-widest ${size === "small" ? "text-[6px]" : "text-[8px]"}`}
-            style={{ color: "#2a384c", fontFamily: "Inter, sans-serif" }}
-          >
-            PROPERTY GROUP
-          </span>
-        </div>
-      </div>
-      {/* Divider */}
-      <div
-        className={`border-l ${size === "small" ? "h-6" : "h-8"}`}
-        style={{ borderColor: "#a0b2c2" }}
+    <div className="flex items-center gap-2">
+      <Image
+        src="/images/hgpg-logo.png"
+        alt="Home Grown Property Group"
+        width={size === "small" ? 32 : 44}
+        height={size === "small" ? 32 : 44}
+        className="object-contain"
       />
-      {/* Real Broker */}
-      <div className="flex flex-col items-center leading-tight">
-        <span
-          className={`font-bold ${size === "small" ? "text-[10px]" : "text-sm"}`}
-          style={{ color: "#2a384c", fontFamily: "Inter, sans-serif" }}
-        >
-          real
-        </span>
-        <span
-          className={`${size === "small" ? "text-[5px]" : "text-[7px]"} tracking-wider`}
-          style={{ color: "#2a384c", fontFamily: "Inter, sans-serif" }}
-        >
-          REAL BROKER, LLC
-        </span>
-      </div>
     </div>
   );
 }
@@ -152,15 +103,8 @@ function Calculator() {
     const charlotteMortgage = Math.round(rent * 0.75);
     const monthlySavings = rent - charlotteMortgage;
     const annualSavings = monthlySavings * 12;
-    // Estimated home price based on mortgage (assume 6.75%, 30yr, taxes+insurance)
-    const monthlyRate = 0.0675 / 12;
-    const n = 360;
-    // Back-calculate: mortgage payment = P&I + tax + insurance
-    // Assume ~75% of payment is P&I
-    const piPayment = charlotteMortgage * 0.75;
-    const loanAmount =
-      piPayment * ((Math.pow(1 + monthlyRate, n) - 1) / (monthlyRate * Math.pow(1 + monthlyRate, n)));
-    const homePrice = Math.round(loanAmount / 0.8); // 20% down
+    // Estimated home price based on ~300× monthly mortgage
+    const homePrice = Math.round(charlotteMortgage * 300);
     return { charlotteMortgage, monthlySavings, annualSavings, homePrice };
   }, [rent]);
 
@@ -171,7 +115,7 @@ function Calculator() {
       className="relative py-20 overflow-hidden"
       style={{
         backgroundImage:
-          "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80')",
+          "url('/images/modern-home-interior.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -411,7 +355,7 @@ export default function Home() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1569880153113-76e33fc52b5f?w=1600&q=80"
+            src="/images/charlotte-skyline.jpg"
             alt="Charlotte Skyline"
             fill
             className="object-cover"
@@ -558,7 +502,7 @@ export default function Home() {
       <section className="py-0">
         <div className="relative w-full h-[400px] md:h-[500px]">
           <Image
-            src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1600&q=80"
+            src="/images/charlotte-neighborhood.webp"
             alt="Beautiful Charlotte Neighborhood"
             fill
             className="object-cover"
@@ -599,26 +543,13 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-8">
           <div>
             <div className="mb-4">
-              {/* Small white logo */}
-              <div className="flex items-center gap-2">
-                <svg width="24" height="24" viewBox="0 0 100 100" fill="none">
-                  <circle cx="50" cy="35" r="28" fill="white" opacity="0.2" />
-                  <path
-                    d="M50 75 L50 55 M50 55 Q35 45 30 30 Q28 20 40 18 Q45 17 50 22 Q55 17 60 18 Q72 20 70 30 Q65 45 50 55"
-                    stroke="white"
-                    strokeWidth="3"
-                    fill="none"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <span className="text-white font-bold text-sm tracking-wide" style={{ fontFamily: "Inter, sans-serif" }}>
-                  HOME GROWN
-                </span>
-                <span className="text-white/50 mx-1">|</span>
-                <span className="text-white/70 text-xs" style={{ fontFamily: "Inter, sans-serif" }}>
-                  real
-                </span>
-              </div>
+              <Image
+                src="/images/hgpg-logo.png"
+                alt="Home Grown Property Group"
+                width={40}
+                height={40}
+                className="object-contain brightness-0 invert opacity-80"
+              />
             </div>
             <p className="text-white/60 text-sm max-w-xs">
               Helping New Yorkers find their dream homes in Charlotte, NC.
