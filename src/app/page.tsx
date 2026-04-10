@@ -253,16 +253,19 @@ function WhyCard({
 
 /* ─── Lead Form ─── */
 function LeadForm({
+  showPhone = false,
   showRequired = false,
   buttonText = "Get My Free Relocation Guide",
   privacyText = "We respect your privacy. No spam, ever.",
 }: {
+  showPhone?: boolean;
   showRequired?: boolean;
   buttonText?: string;
   privacyText?: string;
 }) {
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -302,6 +305,21 @@ function LeadForm({
           style={{ borderColor: "#d1d9df" }}
         />
       </div>
+      {showPhone && (
+        <div>
+          <label className="block font-semibold text-sm mb-1.5" style={{ color: "#2a384c" }}>
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            placeholder="(555) 123-4567"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="w-full border-2 rounded-lg px-4 py-3 focus:outline-none focus:border-[#2a384c] transition-colors"
+            style={{ borderColor: "#d1d9df" }}
+          />
+        </div>
+      )}
       <button
         type="submit"
         className="w-full py-4 rounded-lg font-bold text-lg text-white transition-all hover:opacity-90"
@@ -518,6 +536,7 @@ export default function Home() {
           </p>
           <div className="bg-white rounded-2xl p-8 shadow-2xl">
             <LeadForm
+              showPhone
               showRequired
               privacyText="We respect your privacy. Your information will never be shared."
             />
