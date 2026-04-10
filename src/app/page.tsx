@@ -266,14 +266,36 @@ function LeadForm({
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // In production, connect to CRM / email service
-    alert(
-      `Thank you, ${firstName}! We'll send your Relocation Playbook to ${email}.`
-    );
+    // Fire FB Lead conversion event
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq("track", "Lead", {
+        content_name: "NYC to Charlotte Relocation Playbook",
+      });
+    }
+    // TODO: Wire to FUB / email service
+    setSubmitted(true);
   };
+
+  if (submitted) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-4xl mb-3">🎉</div>
+        <h3
+          className="text-xl font-bold mb-2"
+          style={{ color: "#2a384c", fontFamily: "Sansita, serif" }}
+        >
+          Your free Relocation Playbook is on its way!
+        </h3>
+        <p className="text-sm" style={{ color: "#6b7280" }}>
+          Check your email at <strong>{email}</strong> for the download link.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">

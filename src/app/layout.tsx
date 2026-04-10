@@ -7,6 +7,36 @@ export const metadata: Metadata = {
     "Stop paying NYC rent. Own a beautiful Charlotte home for less than your Manhattan studio costs. Get the free NYC to Charlotte Relocation Playbook.",
   keywords:
     "NYC to Charlotte, relocation, moving from New York to Charlotte, Charlotte NC real estate, rent to mortgage calculator",
+  metadataBase: new URL("https://relocate.homegrownpropertygroup.com"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: "https://relocate.homegrownpropertygroup.com/",
+    title: "NYC to Charlotte Relocation | Home Grown Property Group",
+    description:
+      "Stop paying NYC rent. Own a beautiful Charlotte home for less than your Manhattan studio costs. Free relocation playbook with neighborhood guides and cost breakdowns.",
+    images: [
+      {
+        url: "/images/charlotte-skyline.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Charlotte NC Skyline",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NYC to Charlotte Relocation | Home Grown Property Group",
+    description:
+      "Stop paying NYC rent. Own a beautiful Charlotte home for less. Free relocation playbook.",
+    images: ["/images/charlotte-skyline.jpg"],
+  },
+  icons: {
+    icon: "/images/hgpg-logo.png",
+    apple: "/images/hgpg-logo.png",
+  },
 };
 
 export default function RootLayout({
