@@ -88,7 +88,7 @@ function Logo({ size = "normal" }: { size?: "normal" | "small" }) {
         alt="Home Grown Property Group"
         width={size === "small" ? 96 : 240}
         height={size === "small" ? 96 : 240}
-        className={`object-contain ${size === "small" ? "h-24 w-auto" : "h-60 w-auto"}`}
+        className={`object-contain ${size === "small" ? "h-24 w-auto" : "h-20 md:h-60 w-auto"}`}
       />
     </div>
   );
@@ -123,7 +123,7 @@ function Calculator() {
       <div className="absolute inset-0 bg-white/85" />
       <div className="relative max-w-3xl mx-auto px-4">
         <h2
-          className="text-4xl md:text-5xl font-bold text-center mb-3"
+          className="text-3xl md:text-5xl font-bold text-center mb-3"
           style={{ fontFamily: "Sansita, serif", color: "#2a384c" }}
         >
           See What Your Rent Buys in Charlotte
@@ -365,7 +365,7 @@ export default function Home() {
         className="border-b sticky top-0 z-50 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80"
         style={{ borderColor: "#e5e7eb" }}
       >
-        <div className="max-w-6xl mx-auto px-6 flex h-32 items-center justify-between">
+        <div className="max-w-6xl mx-auto px-6 flex h-20 md:h-32 items-center justify-between">
           <Logo />
           <a
             href="#lead-form"
@@ -397,7 +397,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
+        <div className="relative max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-28 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Left: Copy */}
           <div>
             <div
@@ -407,7 +407,7 @@ export default function Home() {
               For NYC Renters Moving to Charlotte
             </div>
             <h1
-              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
+              className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
               style={{ fontFamily: "Sansita, serif" }}
             >
               Stop Paying
@@ -445,7 +445,7 @@ export default function Home() {
           </div>
 
           {/* Right: Lead Form */}
-          <div className="bg-white rounded-2xl p-8 shadow-2xl">
+          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-2xl">
             <div className="text-center mb-6">
               <span
                 className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide mb-3"
@@ -481,7 +481,7 @@ export default function Home() {
       <section className="py-20" style={{ background: "#ffffff" }}>
         <div className="max-w-6xl mx-auto px-6">
           <h2
-            className="text-4xl md:text-5xl font-bold text-center mb-3"
+            className="text-3xl md:text-5xl font-bold text-center mb-3"
             style={{ fontFamily: "Sansita, serif", color: "#2a384c" }}
           >
             Why New Yorkers Choose Charlotte
@@ -547,7 +547,7 @@ export default function Home() {
       >
         <div className="max-w-2xl mx-auto px-6 text-center">
           <h2
-            className="text-4xl md:text-5xl font-bold text-white mb-4"
+            className="text-3xl md:text-5xl font-bold text-white mb-4"
             style={{ fontFamily: "Sansita, serif" }}
           >
             Get the Free NYC to Charlotte Relocation Playbook
@@ -556,7 +556,7 @@ export default function Home() {
             Download our comprehensive relocation guide with neighborhood
             comparisons, cost breakdowns, and insider tips.
           </p>
-          <div className="bg-white rounded-2xl p-8 shadow-2xl">
+          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-2xl">
             <LeadForm
               showPhone
               showRequired
