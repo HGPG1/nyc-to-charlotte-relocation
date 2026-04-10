@@ -252,14 +252,18 @@ function WhyCard({
 }
 
 /* ─── Lead Form ─── */
+const LEAD_API = "https://fkxgdqfnowskflgbuxhm.supabase.co/functions/v1/nyc-lead";
+
 function LeadForm({
   showPhone = false,
   showRequired = false,
+  formLocation = "hero",
   buttonText = "Get My Free Relocation Guide",
   privacyText = "We respect your privacy. No spam, ever.",
 }: {
   showPhone?: boolean;
   showRequired?: boolean;
+  formLocation?: string;
   buttonText?: string;
   privacyText?: string;
 }) {
@@ -267,17 +271,43 @@ function LeadForm({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Fire FB Lead conversion event
-    if (typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq("track", "Lead", {
-        content_name: "NYC to Charlotte Relocation Playbook",
+    setSubmitting(true);
+    setError("");
+
+    try {
+      // Fire FB Lead conversion event
+      if (typeof window !== "undefined" && (window as any).fbq) {
+        (window as any).fbq("track", "Lead", {
+          content_name: "NYC to Charlotte Relocation Playbook",
+        });
+      }
+
+      // POST to Supabase Edge Function → FUB
+      const res = await fetch(LEAD_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName,
+          email,
+          phone: phone || undefined,
+          monthlyRent: 5137,
+          formLocation,
+        }),
       });
+
+      if (!res.ok) throw new Error("Submission failed");
+
+      setSubmitted(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    // TODO: Wire to FUB / email service
-    setSubmitted(true);
   };
 
   if (submitted) {
@@ -344,11 +374,17 @@ function LeadForm({
       )}
       <button
         type="submit"
-        className="w-full py-4 rounded-lg font-bold text-lg text-white transition-all hover:opacity-90"
+        disabled={submitting}
+        className="w-full py-4 rounded-lg font-bold text-lg text-white transition-all hover:opacity-90 disabled:opacity-60"
         style={{ background: "#2a384c" }}
       >
-        {buttonText}
+        {submitting ? "Sending..." : buttonText}
       </button>
+      {error && (
+        <p className="text-center text-sm" style={{ color: "#ef4444" }}>
+          {error}
+        </p>
+      )}
       <p className="text-center text-sm" style={{ color: "#9ca3af" }}>
         🔒 {privacyText}
       </p>
@@ -560,6 +596,7 @@ export default function Home() {
             <LeadForm
               showPhone
               showRequired
+              formLocation="bottom-cta"
               privacyText="We respect your privacy. Your information will never be shared."
             />
           </div>
